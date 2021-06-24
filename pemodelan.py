@@ -29,7 +29,7 @@ main = tk.Tk()
 main.title("Pemodelan Simulasi")
 canvas = tk.Canvas(main, width = 400, height = 100, bg = "white")
 canvas.pack(side=tk.TOP, expand = False)
-main.geometry("500x500")
+main.geometry("500x250")
 
 """
 Model Simulasi
@@ -42,6 +42,8 @@ def generate_melayani():
 
 tunggu_t = []
 list_t_datang = []
+t_servis = []
+
 def buka(env, server):
     i = 0
     while True:
@@ -56,6 +58,7 @@ def pelanggan(env,pembeli,server):
         langganan.add_to_line(1)
         print(env.now, 'Pelanggan {} datang'.format(pembeli))
         yield request
+        t_servis.append(env.now)
         print (env.now, 'Pelanggan {} Dilayani'.format(pembeli))
         yield env.timeout(generate_melayani())
         print (env.now, 'Pelanggan {} Selesai dilayani'.format(pembeli))
@@ -72,6 +75,9 @@ def observe(env, server):
         obs_times.append(env.now)
         q_lenght.append(len(server.queue))
         yield env.timeout(1.0)
+
+
+
 
 """
 Kelas Random Generater
@@ -111,7 +117,7 @@ class QueueGraphics:
         self.canvas.update()
 
 def cost(canvas, x_top, y_top):
-    return QueueGraphics("person-resized.gif", 25, "Kasir", capa ,canvas, x_top, y_top)
+    return QueueGraphics("images/person-resized.gif", 25, "Kasir", capa ,canvas, x_top, y_top)
 
 langganan = cost(canvas, 100, 20)
 
@@ -146,22 +152,68 @@ def runSimulation():
     env.process(observe(env,server))
     env.run(until=10)
 
-lambdaInput = tk.Entry(main,width=10)
-muInput = tk.Entry(main,width=10)
+
+
+
+
+arrivalInput = tk.Entry(main,width=5)
+serviceInput = tk.Entry(main,width=5)
+serverInput = tk.Entry(main,width=5)
+
+value_kedatangan=arrivalInput.get()
+if value_kedatangan == "":
+    f_value_kedatanan = 0.0
+else:
+    f_value_kedatanan = float(value_kedatangan)
+
+value_pelayanan = serviceInput.get()
+if value_pelayanan == "":
+    f_value_pelayanan = 0.0
+else:
+    f_value_pelayanan = float(value_pelayanan)
 
 runButton = Button(main, text="Run",command=runSimulation)
-lambdaButton = Button(main, text="Enter lambda")
-muButton = Button(main, text="Enter μ")
+arrivalButton = Button(main, text="Enter arrival")
+serviceButton = Button(main, text="Enter service")
+serverButton = Button(main, text="Enter server")
 
-lambdaInput.pack(side=tk.LEFT, padx=10)
-lambdaButton.pack(side=tk.LEFT)
-muInput.pack(side=tk.LEFT, padx = 10)
-muButton.pack(side=tk.LEFT)
+arrivalInput.pack(side=tk.LEFT, padx=10)
+
+arrivalButton.pack(side=tk.LEFT)
+
+serviceInput.pack(side=tk.LEFT, padx = 10)
+
+serviceButton.pack(side=tk.LEFT)
+
+serverInput.pack(side=tk.LEFT,padx=10)
+serverButton.pack(side=tk.LEFT)
 
 runButton.pack(side=tk.TOP)
 runButton.place(x=230, y=120)
 
 main.mainloop()
+#Membuat csv
+x_waktu_tunggu = pd.Series(tunggu_t)
+x_waktu_datang = pd.Series(list_t_datang)
+#x_waktu_antri = pd.Series(obs_times)
+
+stat_count = pd.DataFrame({
+    "Waktu mengantri":x_waktu_tunggu,
+    "waktu kedatangan":x_waktu_datang
+})
+
+stat_count.to_csv('se3_stat_count5.csv')
+
+a = 0
+dat = 0
+i = 0
+for u in list_t_datang:
+    a+= u-dat
+    dat = u
+    i+=1
+
+print(a/i)
+print(np.mean(tunggu_t))
 
 """
 import matplotlib.pyplot as plt
