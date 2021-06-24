@@ -111,7 +111,7 @@ class QueueGraphics:
         self.canvas.update()
 
 def cost(canvas, x_top, y_top):
-    return QueueGraphics("images/person-resized.gif", 25, "Kasir", capa ,canvas, x_top, y_top)
+    return QueueGraphics("person-resized.gif", 25, "Kasir", capa ,canvas, x_top, y_top)
 
 langganan = cost(canvas, 100, 20)
 
